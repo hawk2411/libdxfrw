@@ -388,10 +388,10 @@ public:
 class DRW_Vport : public DRW_TableEntry {
     SETOBJFRIENDS
 public:
-    DRW_Vport() { reset();}
+    DRW_Vport() {tType = DRW::VPORT;}
 
     void reset() override{
-        tType = DRW::VPORT;
+
         UpperRight.x = UpperRight.y = 1.0;
         snapSpacing.x = snapSpacing.y = 10.0;
         gridSpacing = snapSpacing;
@@ -411,8 +411,8 @@ public:
     }
 
 protected:
-    void parseCode(int code, dxfReader *reader);
-    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0);
+    void parseCode(int code, dxfReader *reader) override;
+    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs) override;
 
 public:
     DRW_Coord lowerLeft;     /*!< Lower left corner, code 10 & 20 */
@@ -423,22 +423,22 @@ public:
     DRW_Coord gridSpacing;   /*!< grid Spacing, code 15 & 25 */
     DRW_Coord viewDir;       /*!< view direction from target point, code 16, 26 & 36 */
     DRW_Coord viewTarget;    /*!< view target point, code 17, 27 & 37 */
-    double height;           /*!< view height, code 40 */
-    double ratio;            /*!< viewport aspect ratio, code 41 */
-    double lensHeight;       /*!< lens height, code 42 */
-    double frontClip;        /*!< front clipping plane, code 43 */
-    double backClip;         /*!< back clipping plane, code 44 */
-    double snapAngle;        /*!< snap rotation angle, code 50 */
-    double twistAngle;       /*!< view twist angle, code 51 */
-    int viewMode;            /*!< view mode, code 71 */
-    int circleZoom;          /*!< circle zoom percent, code 72 */
-    int fastZoom;            /*!< fast zoom setting, code 73 */
-    int ucsIcon;             /*!< UCSICON setting, code 74 */
-    int snap;                /*!< snap on/off, code 75 */
-    int grid;                /*!< grid on/off, code 76 */
-    int snapStyle;           /*!< snap style, code 77 */
-    int snapIsopair;         /*!< snap isopair, code 78 */
-    int gridBehavior;        /*!< grid behavior, code 60, undocummented */
+    double height{5.13732};           /*!< view height, code 40 */
+    double ratio{2.4426877};            /*!< viewport aspect ratio, code 41 */
+    double lensHeight{50};       /*!< lens height, code 42 */
+    double frontClip{0.0};        /*!< front clipping plane, code 43 */
+    double backClip{0.0};         /*!< back clipping plane, code 44 */
+    double snapAngle{0.0};        /*!< snap rotation angle, code 50 */
+    double twistAngle{0.0};       /*!< view twist angle, code 51 */
+    int viewMode{0};            /*!< view mode, code 71 */
+    int circleZoom{100};          /*!< circle zoom percent, code 72 */
+    int fastZoom{1};            /*!< fast zoom setting, code 73 */
+    int ucsIcon{3};             /*!< UCSICON setting, code 74 */
+    int snap{0};                /*!< snap on/off, code 75 */
+    int grid{0};                /*!< grid on/off, code 76 */
+    int snapStyle{0};           /*!< snap style, code 77 */
+    int snapIsopair{0};         /*!< snap isopair, code 78 */
+    int gridBehavior{7};        /*!< grid behavior, code 60, undocummented */
     /** code 60, bit coded possible value are
     * bit 1 (1) show out of limits
     * bit 2 (2) adaptive grid
@@ -457,29 +457,29 @@ class DRW_ImageDef : public DRW_TableEntry {//
     SETOBJFRIENDS
 public:
     DRW_ImageDef() {
-        reset();
+        tType = DRW::IMAGEDEF;
     }
 
-    void reset(){
+    void reset() override{
         tType = DRW::IMAGEDEF;
         imgVersion = 0;
         DRW_TableEntry::reset();
     }
 
 protected:
-    void parseCode(int code, dxfReader *reader);
-    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0);
+    void parseCode(int code, dxfReader *reader) override;
+    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs) override;
 
 public:
 //    std::string handle;       /*!< entity identifier, code 5 */
     UTF8STRING name;          /*!< File name of image, code 1 */
-    int imgVersion;              /*!< class version, code 90, 0=R14 version */
-    double u;                 /*!< image size in pixels U value, code 10 */
-    double v;                 /*!< image size in pixels V value, code 20 */
-    double up;                /*!< default size of one pixel U value, code 11 */
-    double vp;                /*!< default size of one pixel V value, code 12 really is 21*/
-    int loaded;               /*!< image is loaded flag, code 280, 0=unloaded, 1=loaded */
-    int resolution;           /*!< resolution units, code 281, 0=no, 2=centimeters, 5=inch */
+    int imgVersion{0};              /*!< class version, code 90, 0=R14 version */
+    double u{0.0};                 /*!< image size in pixels U value, code 10 */
+    double v{0.0};                 /*!< image size in pixels V value, code 20 */
+    double up{0.0};                /*!< default size of one pixel U value, code 11 */
+    double vp{0.0};                /*!< default size of one pixel V value, code 12 really is 21*/
+    int loaded{0};               /*!< image is loaded flag, code 280, 0=unloaded, 1=loaded */
+    int resolution{0};           /*!< resolution units, code 281, 0=no, 2=centimeters, 5=inch */
 
     std::map<std::string,std::string> reactors;
 };
@@ -493,10 +493,10 @@ class DRW_PlotSettings : public DRW_TableEntry {
     SETOBJFRIENDS
 public:
     DRW_PlotSettings() {
-        reset();
+        tType = DRW::PLOTSETTINGS;
     }
 
-    void reset(){
+    void reset() override{
         tType = DRW::PLOTSETTINGS;
         marginLeft = 0.0;
         marginBottom = 0.0;
@@ -506,15 +506,15 @@ public:
     }
 
 protected:
-    void parseCode(int code, dxfReader *reader);
-    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0);
+    void parseCode(int code, dxfReader *reader) override;
+    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs) override;
 
 public:
     UTF8STRING plotViewName;/*!< Plot view name, code 6 */
-    double marginLeft;      /*!< Size, in millimeters, of unprintable margin on left side of paper, code 40 */
-    double marginBottom;    /*!< Size, in millimeters, of unprintable margin on bottom side of paper, code 41 */
-    double marginRight;     /*!< Size, in millimeters, of unprintable margin on right side of paper, code 42 */
-    double marginTop;       /*!< Size, in millimeters, of unprintable margin on top side of paper, code 43 */
+    double marginLeft{0.0};      /*!< Size, in millimeters, of unprintable margin on left side of paper, code 40 */
+    double marginBottom{0.0};    /*!< Size, in millimeters, of unprintable margin on bottom side of paper, code 41 */
+    double marginRight{0.0};     /*!< Size, in millimeters, of unprintable margin on right side of paper, code 42 */
+    double marginTop{0.0};       /*!< Size, in millimeters, of unprintable margin on top side of paper, code 43 */
 };
 
 //! Class to handle AppId entries
@@ -525,17 +525,21 @@ public:
 class DRW_AppId : public DRW_TableEntry {
     SETOBJFRIENDS
 public:
-    DRW_AppId() { reset();}
+    DRW_AppId() {
+        tType = DRW::APPID;
+        flags = 0;
+        name = "";
+    }
 
-    void reset(){
+    void reset() override{
         tType = DRW::APPID;
         flags = 0;
         name = "";
     }
 
 protected:
-    void parseCode(int code, dxfReader *reader){DRW_TableEntry::parseCode(code, reader);}
-    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs=0);
+    void parseCode(int code, dxfReader *reader) override{DRW_TableEntry::parseCode(code, reader);}
+    bool parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs) override;
 };
 
 namespace DRW {

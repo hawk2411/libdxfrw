@@ -13,7 +13,7 @@ protected:
     const std::string test_file_name = "./data/SOT23_Stacks_2D_CC_Full.dxf";
 protected:
     void SetUp() override {
-        _dwgReader = std::make_unique<dwgR>(test_file_name.c_str());
+        _dwgReader = std::unique_ptr<dwgR>( new dwgR(test_file_name.c_str()));
     }
 
     void TearDown() override {
