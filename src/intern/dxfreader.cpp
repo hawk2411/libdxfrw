@@ -26,77 +26,78 @@ bool dxfReader::readRec(int *codeData) {
         return false;
     *codeData = code;
 
-    if (code < 10)
-        readString();
-    else if (code < 60)
-        readDouble();
-    else if (code < 80)
-        readInt16();
-    else if (code > 89 && code < 100) //TODO this is an int 32b
-        readInt32();
-    else if (code == 100 || code == 102 || code == 105)
-        readString();
-    else if (code > 109 && code < 150) //skip not used at the v2012
-        readDouble();
-    else if (code > 159 && code < 170) //skip not used at the v2012
-        readInt64();
-    else if (code < 180)
-        readInt16();
-    else if (code > 209 && code < 240) //skip not used at the v2012
-        readDouble();
-    else if (code > 269 && code < 290) //skip not used at the v2012
-        readInt16();
-    else if (code < 300) //TODO this is a boolean indicator, int in Binary?
-        readBool();
-    else if (code < 310)
-        readString();
-    else if (code < 320)
-        readBinary();
-    else if (code < 370)
-        readString();
-    else if (code < 390)
-        readInt16();
-    else if (code < 400)
-        readString();
-    else if (code < 410)
-        readInt16();
-    else if (code < 420)
-        readString();
-    else if (code < 430) //TODO this is an int 32b
-        readInt32();
-    else if (code < 440)
-        readString();
-    else if (code < 450) //TODO this is an int 32b
-        readInt32();
-    else if (code < 460) //TODO this is long??
-        readInt32();
-    else if (code < 470) //TODO this is a floating point double precision??
-        readDouble();
-    else if (code < 481)
-        readString();
-    else if( 999 == code && m_bIgnoreComments) {
+    if (code < 10) { return readString(); }
+    if (code < 60) { return readDouble(); }
+    if (code < 80) { return readInt16(); }
+    if (code > 89 && code < 100) {
+        //TODO this is an int 32b
+        return readInt32();
+    }
+    if (code == 100 || code == 102 || code == 105) { readString(); }
+    if (code > 109 && code < 150) {
+        //skip not used at the v2012
+        return readDouble();
+    }
+    if (code > 159 && code < 170) {
+        //skip not used at the v2012
+        return readInt64();
+    }
+    if (code < 180) { return readInt16(); }
+    if (code > 209 && code < 240) {
+        //skip not used at the v2012
+        return readDouble();
+    }
+    if (code > 269 && code < 290) { //skip not used at the v2012
+        return readInt16();
+    }
+    if (code < 300) {
+        //TODO this is a boolean indicator, int in Binary?
+        return readBool();
+    }
+    if (code < 310) { return readString(); }
+    if (code < 320) { return readBinary(); }
+    if (code < 370) { return readString(); }
+    if (code < 390) { return readInt16(); }
+    if (code < 400) { return readString(); }
+    if (code < 410) { return readInt16(); }
+    if (code < 420) { return readString(); }
+    if (code < 430) {
+        //TODO this is an int 32b
+        return readInt32();
+    }
+    if (code < 440) { return readString(); }
+    if (code < 450) {//TODO this is an int 32b
+        return readInt32();
+    }
+    if (code < 460) { //TODO this is long??
+        return readInt32();
+    }
+    if (code < 470) { //TODO this is a floating point double precision??
+        return readDouble();
+    }
+    if (code < 481) { return readString(); }
+    if( 999 == code && m_bIgnoreComments) {
         readString();
         return readRec( codeData);
     }
-    else if (code == 1004)
-        readBinary();
-    else if (code > 998 && code < 1009) //skip not used at the v2012
-        readString();
-    else if (code < 1060) //TODO this is a floating point double precision??
-        readDouble();
-    else if (code < 1071)
-        readInt16();
-    else if (code == 1071) //TODO this is an int 32b
-        readInt32();
-    else if (skip)
-        //skip safely this dxf entry ( ok for ascii dxf)
-        readString();
-    else
+    if (code == 1004) { return readBinary(); }
+    if (code > 998 && code < 1009) {//skip not used at the v2012
+        return readString();
+    }
+    if (code < 1060) {//TODO this is a floating point double precision??
+        return readDouble();
+    }
+    if (code < 1071) { return readInt16(); }
+    if (code == 1071) {//TODO this is an int 32b
+        return readInt32();
+    }
+    if (skip) { //skip safely this dxf entry ( ok for ascii dxf)
+        return readString();
+    }
         //break in binary files because the conduct is unpredictable
-        return false;
-
-    return (filestr->good());
+    return false;
 }
+
 int dxfReader::getHandleString(){
     int res;
 #if defined(__APPLE__)

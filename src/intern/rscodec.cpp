@@ -88,27 +88,33 @@ void RScodec::RSgenerate_gf(unsigned int pp) {
   nn=(2^mm -1) Reed Solomon code  from the product of (X+alpha**i), i=1..2*tt
 */
 void RScodec::RSgen_poly() {
-    int i,j ;
+    int i, j;
     int tmp;
-    int bb = nn-kk;; //nn-kk length of parity data
+    int bb = nn - kk; //nn-kk length of parity data
 
-    gg[0] = 2 ;    /* primitive element alpha = 2  for GF(2**mm)  */
-    gg[1] = 1 ;    /* g(x) = (X+alpha) initially */
-    for (i=2; i<=bb; i++) {
-        gg[i] = 1 ;
-        for (j=i-1; j>0; j--)
+    gg[0] = 2;    /* primitive element alpha = 2  for GF(2**mm)  */
+    gg[1] = 1;    /* g(x) = (X+alpha) initially */
+    for (i = 2; i <= bb; i++) {
+        gg[i] = 1;
+        for (j = i - 1; j > 0; j--)
             if (gg[j] != 0) {
-                if (gg[j]<0) { isOk=false; return; }
-                tmp = (index_of[gg[j]]+i)%nn;
-                if (tmp<0) { isOk=false; return; }
-                gg[j] = gg[j-1]^ alpha_to[tmp] ;
+                if (gg[j] < 0) {
+                    isOk = false;
+                    return;
+                }
+                tmp = (index_of[gg[j]] + i) % nn;
+                if (tmp < 0) {
+                    isOk = false;
+                    return;
+                }
+                gg[j] = gg[j - 1] ^ alpha_to[tmp];
             } else {
-                gg[j] = gg[j-1] ;
+                gg[j] = gg[j - 1];
             }
-        gg[0] = alpha_to[(index_of[gg[0]]+i)%nn] ;     /* gg[0] can never be zero */
+        gg[0] = alpha_to[(index_of[gg[0]] + i) % nn];     /* gg[0] can never be zero */
     }
     /* convert gg[] to index form for quicker encoding */
-    for (i=0; i<=bb; i++)  gg[i] = index_of[gg[i]] ;
+    for (i = 0; i <= bb; i++) gg[i] = index_of[gg[i]];
 }
 
 int RScodec::calcDecode(unsigned char* data, int* recd, int** elp, int* d, int* l, int* u_lu, int* s, int* root, int* loc, int* z, int* err, int* reg, int bb)
@@ -322,7 +328,7 @@ bool RScodec::encode(unsigned char *data, unsigned char *parity) {
     int feedback ;
     unsigned char *idata = data;
     unsigned char *bd = parity;
-    int bb = nn-kk;; //nn-kk length of parity data
+    int bb = nn-kk; //nn-kk length of parity data
 
     for (i=0; i<bb; i++)   bd[i] = 0 ;
     for (i=kk-1; i>=0; i--) {
@@ -365,7 +371,7 @@ bool RScodec::encode(unsigned char *data, unsigned char *parity) {
 /** return value: number of corrected errors or -1 if can't correct it */
 int RScodec::decode(unsigned char *data) {
     if (!isOk) return -1;
-    int bb = nn-kk;; //nn-kk length of parity data
+    int bb = nn-kk; //nn-kk length of parity data
 
     int *recd = new (std::nothrow) int[nn];
     int **elp = new int*[bb + 2];

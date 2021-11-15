@@ -26,7 +26,7 @@ bool dx_iface::fileImport(const std::string& fileI, dx_data *fData, bool debug){
 
     if (fileExt == "DXF"){
         //loads dxf
-        dxfRW* dxf = new dxfRW(fileI.c_str());
+        dxfRW* dxf = new dxfRW(fileI);
         if (debug) {
             dxf->setDebug(DRW::DebugLevel::Debug);
         }
@@ -42,7 +42,7 @@ bool dx_iface::fileImport(const std::string& fileI, dx_data *fData, bool debug){
         if (debug) {
             dwg->setDebug(DRW::DebugLevel::Debug);
         }
-        bool success = dwg->read(this, false);
+        bool success = dwg->read(this);
         if (!success) {
             std::cout << "DWG file error: format " << dwg->getVersion() << " error " << dwg->getError() << std::endl;
         }
@@ -55,9 +55,9 @@ bool dx_iface::fileImport(const std::string& fileI, dx_data *fData, bool debug){
 
 bool dx_iface::fileExport(const std::string& file, DRW::Version v, bool binary, dx_data *fData, bool debug){
     cData = fData;
-    dxfW = new dxfRW(file.c_str());
+    dxfW = new dxfRW(file);
     if (debug) {
-        dxfW->setDebug(DRW::DebugLevel::Debug);
+        dxfRW::setDebug(DRW::DebugLevel::Debug);
     }
     bool success = dxfW->write(this, v, binary);
     delete dxfW;

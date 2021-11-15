@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cassert>
+#include <utility>
 #include "intern/drw_textcodec.h"
 #include "intern/dxfreader.h"
 #include "intern/dxfwriter.h"
@@ -33,21 +34,14 @@
     secObjects
 };*/
 
-dxfRW::dxfRW(const char* name){
+dxfRW::dxfRW(std::string name) : fileName(std::move(name)) {
     DRW_DBGSL(DRW_dbg::Level::None);
-    fileName = name;
-    reader = NULL;
-    writer = NULL;
-    applyExt = false;
-    elParts = 128; //parts number when convert ellipse to polyline
 }
 dxfRW::~dxfRW(){
-    if (reader != NULL)
-        delete reader;
-    if (writer != NULL)
-        delete writer;
-    for (std::vector<DRW_ImageDef*>::iterator it=imageDef.begin(); it!=imageDef.end(); ++it)
-        delete *it;
+    delete reader;
+    delete writer;
+    for (auto & it : imageDef)
+        delete it;
 
     imageDef.clear();
 }
@@ -63,7 +57,7 @@ void dxfRW::setDebug(DRW::DebugLevel lvl){
 }
 
 bool dxfRW::read(DRW_Interface *interface_, bool ext){
-    drw_assert(fileName.empty() == false);
+    drw_assert(fileName.empty() == false)
     applyExt = ext;
     std::ifstream filestr;
     if (nullptr == interface_) {
@@ -123,11 +117,11 @@ bool dxfRW::write(DRW_Interface *interface_, DRW::Version ver, bool bin){
         std::string comm = std::string("dxfrw ") + std::string(DRW_VERSION);
         writer->writeString(999, comm);
     }
-    DRW_Header header;
-    iface->writeHeader(header);
+    DRW_Header temp_header;
+    iface->writeHeader(temp_header);
     writer->writeString(0, "SECTION");
     entCount =FIRSTHANDLE;
-    header.write(writer, version);
+    temp_header.write(writer, version);
     writer->writeString(0, "ENDSEC");
     if (ver > DRW::AC1009) {
         writer->writeString(0, "SECTION");
@@ -159,7 +153,7 @@ bool dxfRW::write(DRW_Interface *interface_, DRW::Version ver, bool bin){
     filestr.close();
     isOk = true;
     delete writer;
-    writer = NULL;
+    writer = nullptr;
     return isOk;
 }
 
@@ -192,7 +186,7 @@ bool dxfRW::writeEntity(DRW_Entity *ent) {
 }
 
 bool dxfRW::writeAppData(const std::list<std::list<DRW_Variant>>& appData) {
-    for(auto group : appData) {
+    for(const auto& group : appData) {
         //Search for application name
         bool found = false;
 
@@ -260,8 +254,8 @@ bool dxfRW::writeLineType(DRW_LType *ent){
     writer->writeInt16(73, ent->size);
     writer->writeDouble(40, ent->length);
 
-    for (unsigned int i = 0;  i< ent->path.size(); i++){
-        writer->writeDouble(49, ent->path.at(i));
+    for (double i : ent->path){
+        writer->writeDouble(49, i);
         if (version > DRW::AC1009) {
             writer->writeInt16(74, 0);
         }
@@ -419,7 +413,7 @@ bool dxfRW::writeVport(DRW_Vport *ent){
             writer->writeString(348, "10020");
             writer->writeInt16(60, ent->gridBehavior);//v2007 undocummented see DRW_Vport class
             writer->writeInt16(61, 5);
-            writer->writeBool(292, 1);
+            writer->writeBool(292, true);
             writer->writeInt16(282, 1);
             writer->writeDouble(141, 0.0);
             writer->writeDouble(142, 0.0);
@@ -784,14 +778,14 @@ bool dxfRW::writeLWPolyline(DRW_LWPolyline *ent){
             writer->writeString(100, "AcDbPolyline");
         }
         ent->vertexnum = ent->vertlist.size();
-        writer->writeInt32(90, ent->vertexnum);
+        writer->writeInt32(90, static_cast<int>(ent->vertexnum));
         writer->writeInt16(70, ent->flags);
         writer->writeDouble(43, ent->width);
         if (ent->elevation != 0)
             writer->writeDouble(38, ent->elevation);
         if (ent->thickness != 0)
             writer->writeDouble(39, ent->thickness);
-        for (int i = 0;  i< ent->vertexnum; i++){
+        for (size_t i = 0;  i< ent->vertexnum; i++){
             auto& v = ent->vertlist.at(i);
             writer->writeDouble(10, v->x);
             writer->writeDouble(20, v->y);
@@ -851,8 +845,8 @@ bool dxfRW::writePolyline(DRW_Polyline *ent) {
         writer->writeDouble(230, crd.z);
     }
 
-    int vertexnum = ent->vertlist.size();
-    for (int i = 0;  i< vertexnum; i++){
+    auto vertexnum = ent->vertlist.size();
+    for (decltype(vertexnum) i = 0;  i < vertexnum; i++) {
         DRW_Vertex *v = ent->vertlist.at(i).get();
         writer->writeString(0, "VERTEX");
         writeEntity(ent);
@@ -923,8 +917,8 @@ bool dxfRW::writeSpline(DRW_Spline *ent){
         for (int i = 0;  i< ent->nknots; i++){
             writer->writeDouble(40, ent->knotslist.at(i));
         }
-        for (std::size_t i = 0; i< ent->weightlist.size(); i++) {
-            writer->writeDouble(41, ent->weightlist.at(i));
+        for (double i : ent->weightlist) {
+            writer->writeDouble(41, i);
         }
         for (int i = 0;  i< ent->ncontrol; i++){
             auto crd = ent->controllist.at(i);
@@ -2950,9 +2944,10 @@ bool dxfRW::writePlotSettings(DRW_PlotSettings *ent) {
 }
 
 /** utility function
- * convert a int to string in hex
+ * convert a integer type to string in hex
  **/
-std::string dxfRW::toHexStr(int n){
+template<typename T> std::string dxfRW::toHexStr(const T& n){
+    static_assert(std::numeric_limits<T>::is_integer, "using wrong type");
 #if defined(__APPLE__)
     char buffer[9]= {'\0'};
     snprintf(buffer,9, "%X", n);

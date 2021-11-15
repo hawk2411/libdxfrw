@@ -55,10 +55,9 @@ void dwgR::setDebug(DRW::DebugLevel lvl){
 
 /*reads metadata and loads image preview*/
 bool dwgR::getPreview(){
-    bool isOk = false;
 
     std::ifstream filestr;
-    isOk = openFile(&filestr);
+    bool isOk = openFile(&filestr);
     if (!isOk)
         return false;
 
@@ -130,15 +129,14 @@ bool dwgR::testReader(){
 }
 
 /*start reading dwg file header and, if can read it, continue reading all*/
-bool dwgR::read(DRW_Interface *interface_, bool ext){
-    bool isOk = false;
-    applyExt = ext;
-    iface = interface_;
+bool dwgR::read(DRW_Interface *interface){
+
+    iface = interface;
 
 //testReader();return false;
 
     std::ifstream filestr;
-    isOk = openFile(&filestr);
+    bool isOk = openFile(&filestr);
     if (!isOk)
         return false;
 

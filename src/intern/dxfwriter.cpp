@@ -10,93 +10,19 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.    **
 ******************************************************************************/
 
-#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <algorithm>
 #include "dxfwriter.h"
 
 //RLZ TODO change std::endl to x0D x0A (13 10)
-/*bool dxfWriter::readRec(int *codeData, bool skip) {
-//    std::string text;
-    int code;
 
-#ifdef DRW_DBG
-    count = count+2; //DBG
-#endif
-
-    if (!readCode(&code))
-        return false;
-    *codeData = code;
-
-    if (code < 10)
-        readString();
-    else if (code < 60)
-        readDouble();
-    else if (code < 80)
-        readInt();
-    else if (code > 89 && code < 100) //TODO this is an int 32b
-        readInt32();
-    else if (code == 100 || code == 102 || code == 105)
-        readString();
-    else if (code > 109 && code < 150) //skip not used at the v2012
-        readDouble();
-    else if (code > 159 && code < 170) //skip not used at the v2012
-        readInt64();
-    else if (code < 180)
-        readInt();
-    else if (code > 209 && code < 240) //skip not used at the v2012
-        readDouble();
-    else if (code > 269 && code < 290) //skip not used at the v2012
-        readInt();
-    else if (code < 300) //TODO this is a boolean indicator, int in Binary?
-        readBool();
-    else if (code < 370)
-        readString();
-    else if (code < 390)
-        readInt();
-    else if (code < 400)
-        readString();
-    else if (code < 410)
-        readInt();
-    else if (code < 420)
-        readString();
-    else if (code < 430) //TODO this is an int 32b
-        readInt32();
-    else if (code < 440)
-        readString();
-    else if (code < 450) //TODO this is an int 32b
-        readInt32();
-    else if (code < 460) //TODO this is long??
-        readInt();
-    else if (code < 470) //TODO this is a floating point double precision??
-        readDouble();
-    else if (code < 481)
-        readString();
-    else if (code > 998 && code < 1009) //skip not used at the v2012
-        readString();
-    else if (code < 1060) //TODO this is a floating point double precision??
-        readDouble();
-    else if (code < 1071)
-        readInt();
-    else if (code == 1071) //TODO this is an int 32b
-        readInt32();
-    else if (skip)
-        //skip safely this dxf entry ( ok for ascii dxf)
-        readString();
-    else
-        //break in binary files because the conduct is unpredictable
-        return false;
-
-    return (filestr->good());
-}*/
-
-bool dxfWriter::writeUtf8String(int code, std::string text) {
+bool dxfWriter::writeUtf8String(int code, const std::string& text) {
     std::string t = encoder.fromUtf8(text);
     return writeString(code, t);
 }
 
-bool dxfWriter::writeUtf8Caps(int code, std::string text) {
+bool dxfWriter::writeUtf8Caps(int code, const std::string &text) {
     std::string strname = text;
     std::transform(strname.begin(), strname.end(), strname.begin(),::toupper);
     std::string t = encoder.fromUtf8(strname);
@@ -104,10 +30,7 @@ bool dxfWriter::writeUtf8Caps(int code, std::string text) {
 }
 
 bool dxfWriterBinary::writeString(int code, std::string text) {
-    char bufcode[2];
-    bufcode[0] =code & 0xFF;
-    bufcode[1] =code  >> 8;
-    filestr->write(bufcode, 2);
+    writeIntegerValue(code, 2);
     *filestr << text << '\0';
     return (filestr->good());
 }
@@ -143,60 +66,45 @@ bool dxfWriterBinary::writeString(int code, std::string text) {
 }*/
 
 bool dxfWriterBinary::writeInt16(int code, int data) {
-    char bufcode[2];
-    char buffer[2];
-    bufcode[0] =code & 0xFF;
-    bufcode[1] =code  >> 8;
-    buffer[0] =data & 0xFF;
-    buffer[1] =data  >> 8;
-    filestr->write(bufcode, 2);
-    filestr->write(buffer, 2);
-    return (filestr->good());
+    return writeIntegerValueAndValidate(code, data, 2);
 }
 
 bool dxfWriterBinary::writeInt32(int code, int data) {
-    char buffer[4];
-    buffer[0] =code & 0xFF;
-    buffer[1] =code  >> 8;
-    filestr->write(buffer, 2);
-
-    buffer[0] =data & 0xFF;
-    buffer[1] =data  >> 8;
-    buffer[2] =data  >> 16;
-    buffer[3] =data  >> 24;
-    filestr->write(buffer, 4);
-    return (filestr->good());
+    return writeIntegerValueAndValidate(code, data, 4);
 }
 
 bool dxfWriterBinary::writeInt64(int code, unsigned long long int data) {
-    char buffer[8];
-    buffer[0] =code & 0xFF;
-    buffer[1] =code  >> 8;
-    filestr->write(buffer, 2);
+    return writeIntegerValueAndValidate(code, data, 8);
+}
 
-    buffer[0] =data & 0xFF;
-    buffer[1] =data  >> 8;
-    buffer[2] =data  >> 16;
-    buffer[3] =data  >> 24;
-    buffer[4] =data  >> 32;
-    buffer[5] =data  >> 40;
-    buffer[6] =data  >> 48;
-    buffer[7] =data  >> 56;
-    filestr->write(buffer, 8);
+template<typename T>
+void dxfWriterBinary::writeIntegerValue( T data, long buffer_size_in_bytes) {
+    static_assert(std::numeric_limits<T>::is_integer, "using wrong type");
+
+    auto buffer = std::unique_ptr<char>(new char[buffer_size_in_bytes]);
+
+    for(int i = 0; i < buffer_size_in_bytes; i++) {
+        buffer.get()[i] = static_cast<char>((data >> (i * 8)) & 0xFF);
+    }
+    filestr->write(buffer.get(), buffer_size_in_bytes);
+}
+
+template<typename T>
+bool dxfWriterBinary::writeIntegerValueAndValidate(int code, T data, long data_size_in_bytes) {
+
+    writeIntegerValue(code,2 );
+    writeIntegerValue(data, data_size_in_bytes);
     return (filestr->good());
 }
 
 bool dxfWriterBinary::writeDouble(int code, double data) {
-    char bufcode[2];
-    char buffer[8];
-    bufcode[0] =code & 0xFF;
-    bufcode[1] =code  >> 8;
-    filestr->write(bufcode, 2);
+    writeIntegerValue(code, 2);
 
+    char buffer[8];
     unsigned char *val;
     val = (unsigned char *) &data;
-    for (int i=0; i<8; i++) {
-        buffer[i] =val[i];
+    for (int i = 0; i < 8; i++) {
+        buffer[i] = static_cast<char>(val[i]);
     }
     filestr->write(buffer, 8);
     return (filestr->good());
@@ -204,14 +112,7 @@ bool dxfWriterBinary::writeDouble(int code, double data) {
 
 //saved as int or add a bool member??
 bool dxfWriterBinary::writeBool(int code, bool data) {
-    char buffer[1];
-    char bufcode[2];
-    bufcode[0] =code & 0xFF;
-    bufcode[1] =code  >> 8;
-    filestr->write(bufcode, 2);
-    buffer[0] = data;
-    filestr->write(buffer, 1);
-    return (filestr->good());
+    return writeIntegerValueAndValidate(code, data, 1);
 }
 
 dxfWriterAscii::dxfWriterAscii(std::ofstream *stream):dxfWriter(stream){

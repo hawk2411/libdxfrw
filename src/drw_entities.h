@@ -332,7 +332,7 @@ public:
         isccw = 1;
     }
 
-    void toPolyline(DRW_Polyline *pol, int parts = 128);
+    void toPolyline(DRW_Polyline *pol, unsigned int parts = DEFAULT_PARTS);
     virtual void applyExtrusion();
 
 protected:
@@ -578,7 +578,7 @@ protected:
      bool parseDwg(DRW::Version v, dwgBuffer *buf, duint32 bs=0);
 
 public:
-    int vertexnum;            /*!< number of vertex, code 90 */
+    size_t vertexnum;            /*!< number of vertex, code 90 */
     int flags;                /*!< polyline flag, code 70, default 0 */
     double width;             /*!< constant width, code 43 */
     double elevation;         /*!< elevation, code 38 */

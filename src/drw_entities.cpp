@@ -9,12 +9,12 @@
 **  You should have received a copy of the GNU General Public License        **
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>.    **
 ******************************************************************************/
-
 #include <cstdlib>
 #include "drw_entities.h"
 #include "intern/dxfreader.h"
 #include "intern/dwgbuffer.h"
 #include "intern/drw_dbg.h"
+
 
 //! Calculate arbitrary axis
 /*!
@@ -777,31 +777,31 @@ bool DRW_Ellipse::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
 }
 
 //parts are the number of vertex to split polyline, default 128
-void DRW_Ellipse::toPolyline(DRW_Polyline *pol, int parts){
+void DRW_Ellipse::toPolyline(DRW_Polyline *pol, unsigned int parts) {
     double radMajor, radMinor, cosRot, sinRot, incAngle, curAngle;
     double cosCurr, sinCurr;
-	radMajor = hypot(secPoint.x, secPoint.y);
-    radMinor = radMajor*ratio;
+    radMajor = hypot(secPoint.x, secPoint.y);
+    radMinor = radMajor * ratio;
     //calculate sin & cos of included angle
     incAngle = atan2(secPoint.y, secPoint.x);
     cosRot = cos(incAngle);
     sinRot = sin(incAngle);
     incAngle = M_PIx2 / parts;
     curAngle = staparam;
-    int i = static_cast<int>(curAngle / incAngle);
+    unsigned int i = static_cast<int>(curAngle / incAngle);
     do {
         if (curAngle > endparam) {
             curAngle = endparam;
-            i = parts+2;
+            i = parts + 2;
         }
         cosCurr = cos(curAngle);
         sinCurr = sin(curAngle);
-        double x = basePoint.x + (cosCurr*cosRot*radMajor) - (sinCurr*sinRot*radMinor);
-        double y = basePoint.y + (cosCurr*sinRot*radMajor) + (sinCurr*cosRot*radMinor);
-        pol->addVertex( DRW_Vertex(x, y, 0.0, 0.0));
-        curAngle = (++i)*incAngle;
-    } while (i<parts);
-    if ( fabs(endparam - staparam - M_PIx2) < 1.0e-10){
+        double x = basePoint.x + (cosCurr * cosRot * radMajor) - (sinCurr * sinRot * radMinor);
+        double y = basePoint.y + (cosCurr * sinRot * radMajor) + (sinCurr * cosRot * radMinor);
+        pol->addVertex(DRW_Vertex(x, y, 0.0, 0.0));
+        curAngle = (++i) * incAngle;
+    } while (i < parts);
+    if (fabs(endparam - staparam - M_PIx2) < 1.0e-10) {
         pol->flags = 1;
     }
     pol->layer = this->layer;
@@ -942,8 +942,8 @@ bool DRW_3Dface::parseDwg(DRW::Version v, dwgBuffer *buf, duint32 bs){
         fourPoint.z = buf->getDefaultDouble(thirdPoint.z);
         invisibleflag = has_no_flag ? (int)NoEdge : buf->getBitShort();
     }
-    drw_assert(invisibleflag>=NoEdge);
-    drw_assert(invisibleflag<=AllEdges);
+    drw_assert(invisibleflag>=NoEdge)
+    drw_assert(invisibleflag<=AllEdges)
 
     DRW_DBG(" - base "); DRW_DBGPT(basePoint.x, basePoint.y, basePoint.z); DRW_DBG("\n");
     DRW_DBG(" - sec "); DRW_DBGPT(secPoint.x, secPoint.y, secPoint.z); DRW_DBG("\n");
@@ -1228,7 +1228,7 @@ bool DRW_LWPolyline::parseDwg(DRW::Version version, dwgBuffer *buf, duint32 bs){
         vertex->y = buf->getRawDouble();
         vertlist.push_back(vertex);
 		auto pv = vertex;
-        for (int i = 1; i< vertexnum; i++){
+        for (size_t i = 1; i < vertexnum; i++) {
 			vertex = std::make_shared<DRW_Vertex2D>();
 			if (version < DRW::AC1015) {//14-
                 vertex->x = buf->getRawDouble();

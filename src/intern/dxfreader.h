@@ -41,7 +41,7 @@ public:
     double getDouble() {return doubleData;}
     int getInt32() {return intData;}
     unsigned long long int getInt64() {return int64;}
-    bool getBool() { return (intData==0) ? false : true;}
+    bool getBool() const { return intData;}
     int getVersion(){return decoder.getVersion();}
     void setVersion(const std::string &v, bool dxfFormat){decoder.setVersion(v, dxfFormat);}
     void setCodePage(const std::string &c){decoder.setCodePage(c, true);}

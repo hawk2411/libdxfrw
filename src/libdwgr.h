@@ -29,11 +29,11 @@ public:
     explicit dwgR(const char* name);
     ~dwgR();
     //read: return true if all ok
-    bool read(DRW_Interface *interface_, bool ext);
+    bool read(DRW_Interface *interface);
     bool getPreview();
     DRW::Version getVersion(){return version;}
     DRW::error getError(){return error;}
-bool testReader();
+    bool testReader();
     void setDebug(DRW::DebugLevel lvl);
 
 private:
@@ -45,7 +45,6 @@ private:
     DRW::Version version { DRW::UNKNOWNV };
     DRW::error error { DRW::BAD_NONE };
     std::string fileName;
-    bool applyExt { false }; /*apply extrusion in entities to conv in 2D?*/
     std::string codePage;
     DRW_Interface *iface { nullptr };
     std::unique_ptr< dwgReader > reader;

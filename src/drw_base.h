@@ -21,9 +21,9 @@
 #include <unordered_map>
 
 #ifdef DRW_ASSERTS
-# define drw_assert(a) assert(a)
+# define drw_assert(a) assert(a);
 #else
-# define drw_assert(a)
+# define drw_assert(a);
 #endif
 
 #define UTF8STRING std::string
@@ -47,6 +47,7 @@
 #endif
 #define M_PIx2      6.283185307179586 // 2*PI
 #define ARAD 57.29577951308232
+#define DEFAULT_PARTS 128
 
 typedef signed char dint8;              /* 8 bit signed */
 typedef signed short dint16;            /* 16 bit signed */

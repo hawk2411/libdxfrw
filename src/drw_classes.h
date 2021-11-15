@@ -29,13 +29,11 @@ class dwgBuffer;
 */
 class DRW_Class {
 public:
-    DRW_Class() {
-    }
-    ~DRW_Class() {
-    }
+    DRW_Class() = default;
+    ~DRW_Class() = default;
 
     void parseCode(int code, dxfReader *reader);
-    void write(dxfWriter *writer, DRW::Version ver);
+    void write(dxfWriter *writer, DRW::Version ver) const;
     bool parseDwg(DRW::Version version, dwgBuffer *buf, dwgBuffer *strBuf);
 
 private:
@@ -44,13 +42,13 @@ public:
     UTF8STRING recName;      /*!< record name, code 1 */
     UTF8STRING className;    /*!< C++ class name, code 2 */
     UTF8STRING appName;      /*!< app name, code 3 */
-    int proxyFlag;           /*!< Proxy capabilities flag, code 90 */
-    int instanceCount;       /*!< number of instances for a custom class, code 91*/
-    int wasaProxyFlag;       /*!< proxy flag (app loaded on save), code 280 */
-    int entityFlag;          /*!< entity flag, code 281 (0 object, 1 entity)*/
+    int proxyFlag{};           /*!< Proxy capabilities flag, code 90 */
+    int instanceCount{};       /*!< number of instances for a custom class, code 91*/
+    int wasaProxyFlag{};       /*!< proxy flag (app loaded on save), code 280 */
+    int entityFlag{};          /*!< entity flag, code 281 (0 object, 1 entity)*/
 public: //only for read dwg
-    duint16 classNum;
-    int dwgType;
+    duint16 classNum{};
+    int dwgType{};
 };
 
 #endif
