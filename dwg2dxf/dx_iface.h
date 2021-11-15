@@ -19,8 +19,8 @@
 
 class dx_iface : public DRW_Interface {
 public:
-    dx_iface(){dxfW = NULL;}
-    ~dx_iface(){}
+    dx_iface(){dxfW = nullptr;}
+    ~dx_iface() override= default;
     bool fileImport(const std::string& fileI, dx_data *fData, bool debug);
     bool fileExport(const std::string& file, DRW::Version v, bool binary, dx_data *fData, bool debug);
     void writeEntity(DRW_Entity* e);
@@ -29,144 +29,144 @@ public:
 
 //reader part, stores all in class dx_data
     //header
-    void addHeader(const DRW_Header* data){
+    void addHeader(const DRW_Header* data) override{
         cData->headerC = *data;
     }
 
     //tables
-    virtual void addLType(const DRW_LType& data){
+    void addLType(const DRW_LType& data) override{
         cData->lineTypes.push_back(data);
     }
-    virtual void addLayer(const DRW_Layer& data){
+    void addLayer(const DRW_Layer& data) override{
         cData->layers.push_back(data);
     }
-    virtual void addDimStyle(const DRW_Dimstyle& data){
+    void addDimStyle(const DRW_Dimstyle& data) override{
         cData->dimStyles.push_back(data);
     }
-    virtual void addVport(const DRW_Vport& data){
+    void addVport(const DRW_Vport& data) override{
         cData->VPorts.push_back(data);
     }
-    virtual void addTextStyle(const DRW_Textstyle& data){
+    void addTextStyle(const DRW_Textstyle& data) override{
         cData->textStyles.push_back(data);
     }
-    virtual void addAppId(const DRW_AppId& data){
+    void addAppId(const DRW_AppId& data) override{
         cData->appIds.push_back(data);
     }
 
     //blocks
-    virtual void addBlock(const DRW_Block& data){
-        dx_ifaceBlock* bk = new dx_ifaceBlock(data);
+    void addBlock(const DRW_Block& data) override{
+        auto* bk = new dx_ifaceBlock(data);
         currentBlock = bk;
         cData->blocks.push_back(bk);
     }
-    virtual void endBlock(){
+    void endBlock() override{
         currentBlock = cData->mBlock;
     }
 
-    virtual void setBlock(const int /*handle*/){}//unused
+    void setBlock(const int /*handle*/) override{}//unused
 
     //entities
-    virtual void addPoint(const DRW_Point& data){
+    void addPoint(const DRW_Point& data) override{
         currentBlock->ent.push_back(new DRW_Point(data));
     }
-    virtual void addLine(const DRW_Line& data){
+    void addLine(const DRW_Line& data) override{
         currentBlock->ent.push_back(new DRW_Line(data));
     }
-    virtual void addRay(const DRW_Ray& data){
+    void addRay(const DRW_Ray& data) override{
         currentBlock->ent.push_back(new DRW_Ray(data));
     }
-    virtual void addXline(const DRW_Xline& data){
+    void addXline(const DRW_Xline& data) override{
         currentBlock->ent.push_back(new DRW_Xline(data));
     }
-    virtual void addArc(const DRW_Arc& data){
+    void addArc(const DRW_Arc& data) override{
         currentBlock->ent.push_back(new DRW_Arc(data));
     }
-    virtual void addCircle(const DRW_Circle& data){
+    void addCircle(const DRW_Circle& data) override{
         currentBlock->ent.push_back(new DRW_Circle(data));
     }
-    virtual void addEllipse(const DRW_Ellipse& data){
+    void addEllipse(const DRW_Ellipse& data) override{
         currentBlock->ent.push_back(new DRW_Ellipse(data));
     }
-    virtual void addLWPolyline(const DRW_LWPolyline& data){
+    void addLWPolyline(const DRW_LWPolyline& data) override{
         currentBlock->ent.push_back(new DRW_LWPolyline(data));
     }
-    virtual void addPolyline(const DRW_Polyline& data){
+    void addPolyline(const DRW_Polyline& data) override{
         currentBlock->ent.push_back(new DRW_Polyline(data));
     }
-    virtual void addSpline(const DRW_Spline* data){
+    void addSpline(const DRW_Spline* data) override{
         currentBlock->ent.push_back(new DRW_Spline(*data));
     }
     // ¿para que se usa?
-    virtual void addKnot(const DRW_Entity& data){(void)data;}
+    void addKnot(const DRW_Entity& data) override{(void)data;}
 
-    virtual void addInsert(const DRW_Insert& data){
+    void addInsert(const DRW_Insert& data) override{
         currentBlock->ent.push_back(new DRW_Insert(data));
     }
-    virtual void addTrace(const DRW_Trace& data){
+    void addTrace(const DRW_Trace& data) override{
         currentBlock->ent.push_back(new DRW_Trace(data));
     }
-    virtual void add3dFace(const DRW_3Dface& data){
+    void add3dFace(const DRW_3Dface& data) override{
         currentBlock->ent.push_back(new DRW_3Dface(data));
     }
-    virtual void addSolid(const DRW_Solid& data){
+    void addSolid(const DRW_Solid& data) override{
         currentBlock->ent.push_back(new DRW_Solid(data));
     }
-    virtual void addMText(const DRW_MText& data){
+    void addMText(const DRW_MText& data) override{
         currentBlock->ent.push_back(new DRW_MText(data));
     }
-    virtual void addText(const DRW_Text& data){
+    void addText(const DRW_Text& data) override{
         currentBlock->ent.push_back(new DRW_Text(data));
     }
-    virtual void addDimAlign(const DRW_DimAligned *data){
+    void addDimAlign(const DRW_DimAligned *data) override{
         currentBlock->ent.push_back(new DRW_DimAligned(*data));
     }
-    virtual void addDimLinear(const DRW_DimLinear *data){
+    void addDimLinear(const DRW_DimLinear *data) override{
         currentBlock->ent.push_back(new DRW_DimLinear(*data));
     }
-    virtual void addDimRadial(const DRW_DimRadial *data){
+    void addDimRadial(const DRW_DimRadial *data) override{
         currentBlock->ent.push_back(new DRW_DimRadial(*data));
     }
-    virtual void addDimDiametric(const DRW_DimDiametric *data){
+    void addDimDiametric(const DRW_DimDiametric *data) override{
         currentBlock->ent.push_back(new DRW_DimDiametric(*data));
     }
-    virtual void addDimAngular(const DRW_DimAngular *data){
+    void addDimAngular(const DRW_DimAngular *data) override{
         currentBlock->ent.push_back(new DRW_DimAngular(*data));
     }
-    virtual void addDimAngular3P(const DRW_DimAngular3p *data){
+    void addDimAngular3P(const DRW_DimAngular3p *data) override{
         currentBlock->ent.push_back(new DRW_DimAngular3p(*data));
     }
-    virtual void addDimOrdinate(const DRW_DimOrdinate *data){
+    void addDimOrdinate(const DRW_DimOrdinate *data) override{
         currentBlock->ent.push_back(new DRW_DimOrdinate(*data));
     }
-    virtual void addLeader(const DRW_Leader *data){
+    void addLeader(const DRW_Leader *data) override{
         currentBlock->ent.push_back(new DRW_Leader(*data));
     }
-    virtual void addHatch(const DRW_Hatch *data){
+    void addHatch(const DRW_Hatch *data) override{
         currentBlock->ent.push_back(new DRW_Hatch(*data));
     }
-    virtual void addViewport(const DRW_Viewport& data){
+    void addViewport(const DRW_Viewport& data) override{
         currentBlock->ent.push_back(new DRW_Viewport(data));
     }
-    virtual void addImage(const DRW_Image *data){
-        dx_ifaceImg *img = new dx_ifaceImg(*data);
+    void addImage(const DRW_Image *data) override{
+        auto *img = new dx_ifaceImg(*data);
         currentBlock->ent.push_back(new dx_ifaceImg(*data));
         cData->images.push_back(img);
     }
 
-    virtual void linkImage(const DRW_ImageDef *data){
+    void linkImage(const DRW_ImageDef *data) override{
         duint32 handle = data->handle;
         std::string path(data->name);
-        for (std::list<dx_ifaceImg*>::iterator it=cData->images.begin(); it != cData->images.end(); ++it){
-            if ((*it)->ref == handle){
-                dx_ifaceImg *img = *it;
+        for (auto & image : cData->images){
+            if (image->ref == handle){
+                dx_ifaceImg *img = image;
                 img->path = path;
             }
         }
     }
 
 //writer part, send all in class dx_data to writer
-    virtual void addComment(const char* /*comment*/){}
-    virtual void addPlotSettings(const DRW_PlotSettings *data) {
+    void addComment(const char* /*comment*/) override{}
+    void addPlotSettings(const DRW_PlotSettings *data) override {
         (void)data;
         // default implementation for new DRW_Interface method
     }
@@ -179,57 +179,57 @@ public:
 //            data.vars[it->first] = new DRW_Variant( *(it->second) );
     }
 
-    virtual void writeBlocks(){
+    void writeBlocks() override{
         //write each block
-        for (std::list<dx_ifaceBlock*>::iterator it=cData->blocks.begin(); it != cData->blocks.end(); ++it){
-            dx_ifaceBlock* bk = *it;
-            dxfW->writeBlock(bk);
+        for (const auto block : cData->blocks){
+            dxfW->writeBlock(block);
             //and write each entity in block
-            for (std::list<DRW_Entity*>::const_iterator it=bk->ent.begin(); it!=bk->ent.end(); ++it)
-                writeEntity(*it);
+            for (auto entity : block->ent) {
+                writeEntity(entity);
+            }
         }
     }
     //only send the name, needed by the reader to prepare handles of blocks & blockRecords
-    virtual void writeBlockRecords(){
-        for (std::list<dx_ifaceBlock*>::iterator it=cData->blocks.begin(); it != cData->blocks.end(); ++it)
-            dxfW->writeBlockRecord((*it)->name);
+    void writeBlockRecords() override{
+        for (const auto * block : cData->blocks)
+            dxfW->writeBlockRecord(block->name);
     }
     //write entities of model space and first paper_space
-    virtual void writeEntities(){
-        for (std::list<DRW_Entity*>::const_iterator it=cData->mBlock->ent.begin(); it!=cData->mBlock->ent.end(); ++it)
-            writeEntity(*it);
+    void writeEntities() override{
+        for (const auto * it : cData->mBlock->ent)
+            writeEntity(it);
     }
-    virtual void writeLTypes(){
-        for (std::list<DRW_LType>::iterator it=cData->lineTypes.begin(); it != cData->lineTypes.end(); ++it)
-            dxfW->writeLineType(&(*it));
+    void writeLTypes() override{
+        for (auto & lineType : cData->lineTypes)
+            dxfW->writeLineType(&lineType);
     }
-    virtual void writeLayers(){
-        for (std::list<DRW_Layer>::iterator it=cData->layers.begin(); it != cData->layers.end(); ++it)
-            dxfW->writeLayer(&(*it));
+    void writeLayers() override{
+        for (const auto & layer : cData->layers)
+            dxfW->writeLayer(&layer);
     }
-    virtual void writeTextstyles(){
-        for (std::list<DRW_Textstyle>::iterator it=cData->textStyles.begin(); it != cData->textStyles.end(); ++it)
-            dxfW->writeTextstyle(&(*it));
+    void writeTextstyles() override{
+        for (const auto & textStyle : cData->textStyles)
+            dxfW->writeTextstyle(&textStyle);
     }
-    virtual void writeVports(){
+    void writeVports() override{
         for (std::list<DRW_Vport>::iterator it=cData->VPorts.begin(); it != cData->VPorts.end(); ++it)
             dxfW->writeVport(&(*it));
     }
-    virtual void writeDimstyles(){
+    void writeDimstyles() override{
         for (std::list<DRW_Dimstyle>::iterator it=cData->dimStyles.begin(); it != cData->dimStyles.end(); ++it)
             dxfW->writeDimstyle(&(*it));
     }
-    virtual void writeObjects() {
+    void writeObjects() override {
         // default implementation for new DRW_Interface method
     }
-    virtual void writeAppId(){
+    void writeAppId() override{
         for (std::list<DRW_AppId>::iterator it=cData->appIds.begin(); it != cData->appIds.end(); ++it)
             dxfW->writeAppId(&(*it));
     }
 
     dxfRW* dxfW; //pointer to writer, needed to send data
-    dx_data* cData; // class to store or read data
-    dx_ifaceBlock* currentBlock;
+    dx_data* cData{}; // class to store or read data
+    dx_ifaceBlock* currentBlock{};
 };
 
 #endif // DX_IFACE_H

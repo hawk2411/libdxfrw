@@ -91,6 +91,7 @@ add_custom_target(doc
 	DEPENDS doc/html/index.html)
 
 add_subdirectory(dwg2dxf)
+add_subdirectory(tests)
 
 # INSTALLATION
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/libdxfrw)

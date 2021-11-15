@@ -28,10 +28,8 @@
  */
 class DRW_Interface {
 public:
-    DRW_Interface() {
-    }
-    virtual ~DRW_Interface() {
-    }
+    DRW_Interface() = default;
+    virtual ~DRW_Interface() = default;
 
     /** Called when header is parsed.  */
     virtual void addHeader(const DRW_Header* data) = 0;
@@ -64,7 +62,7 @@ public:
      *
      * int handle are the value of DRW_Block::handleBlock added with addBlock()
      */
-    virtual void setBlock(const int handle) = 0;
+    virtual void setBlock(int handle) = 0;
 
     /** Called to end the current block */
     virtual void endBlock() = 0;
